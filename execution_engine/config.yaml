@@ -256,6 +256,16 @@ supported_languages:
         file_name_fn_or_str_name: test.py
         timelimit_factor: 3
 
+    Python 3 noopt:
+        compile_cmd: python3
+        compile_flags: -W ignore -m py_compile
+        execute_cmd: python3
+        execute_flags: -W ignore -s -S
+        compile_fn_name: generic_interpreted_compile
+        execute_fn_name: generic_interpreted_execute
+        file_name_fn_or_str_name: test.py
+        timelimit_factor: 3
+
     JavaScript:
         compile_cmd: node
         compile_flags: --check

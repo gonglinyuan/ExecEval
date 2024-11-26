@@ -98,6 +98,9 @@ Python 3:
 Python 3 + libs:
     nofile: 4
 
+Python 3 noopt:
+    nofile: 4
+
 JavaScript:
     nofile: 25
     nproc: 25

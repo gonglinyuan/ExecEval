@@ -101,8 +101,6 @@ ENV GUNICORN_PORT 5000
 ENV WORKER_CFG_DB /root/worker_cfg_db.csv
 ENV LOG_LEVEL info
 
-# RUN groupadd -g ${RUN_GID} runner${RUN_GID} && useradd -M runner${RUN_UID} -g ${RUN_GID} -u ${RUN_UID}
-
 EXPOSE ${GUNICORN_PORT}
 
 RUN mkdir execution_engine
