@@ -233,12 +233,12 @@ class ExecutionEngine:
                 )
             ]
 
-        # if language uses vm then add extra 1gb smemory for the parent vm program to run
+        # if language uses vm then add extra 4gb smemory for the parent vm program to run
         if (
             self.supported_languages[job.language].extend_mem_for_vm
             and limits._as != -1
         ):
-            limits._as += 2**30
+            limits._as += 4 * 1024**3
         # executor = f"timeout -k {limits.cpu} -s 9 {limits.cpu * timelimit_factor + 0.5} {get_prlimit_str(limits)} {executor}"
         executor = f"{get_prlimit_str(limits)} {executor}"
         new_test_cases = job.unittests.copy()
