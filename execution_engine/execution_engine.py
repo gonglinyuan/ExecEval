@@ -134,6 +134,9 @@ class ExecutionEngine:
         self.code_store.destroy()
 
     def _compile(self, command: str) -> subprocess.CompletedProcess:
+        self.logger.info(
+            f"Compile with gid={self.run_gid}, uid={self.run_uid}: {command}"
+        )
         return subprocess.run(
             shlex.split(command),
             user=self.run_uid,
@@ -242,7 +245,7 @@ class ExecutionEngine:
         # executor = f"timeout -k {limits.cpu} -s 9 {limits.cpu * timelimit_factor + 0.5} {get_prlimit_str(limits)} {executor}"
         executor = f"{get_prlimit_str(limits)} {executor}"
         new_test_cases = job.unittests.copy()
-        self.logger.debug(
+        self.logger.info(
             f"Execute with gid={self.run_gid}, uid={self.run_uid}: {executor}"
         )
         for key, tc in enumerate(job.unittests):
