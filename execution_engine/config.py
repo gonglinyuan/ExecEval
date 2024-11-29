@@ -62,15 +62,6 @@ def load_config(config_file: Path) -> Config:
     return cfg
 
 
-def load_limits_by_lang(limits_by_lang_file: Path) -> dict[str, ResourceLimits]:
-    limits_by_lang = dict()
-    with open(limits_by_lang_file) as lblp:
-        for lang, limits_dict in safe_load(lblp).items():
-            limits_by_lang[lang] = ResourceLimits(**limits_dict)
-
-    return limits_by_lang
-
-
 if __name__ == "__main__":
     cfg = load_config(Path("execution_engine/config.yaml"))
     print(cfg.supported_languages.keys())

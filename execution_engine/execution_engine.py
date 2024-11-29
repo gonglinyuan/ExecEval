@@ -108,7 +108,6 @@ class ExecutionEngine:
     def __init__(
         self,
         cfg: Config,
-        limits_by_lang: dict[str, ResourceLimits],
         run_ids: tuple[int, int],
         logger,
     ) -> None:
@@ -122,10 +121,10 @@ class ExecutionEngine:
         self.run_gid = run_ids[0]
         self.socket_filter = make_filter(["socket"])
         self.logger = logger
-        self.limits_by_lang = limits_by_lang
 
         self.exec_env = os.environ.copy()
         self.exec_env["GOCACHE"] = str(self.code_store._source_dir.resolve())
+        self.exec_env["MONO_GC_PARAMS"] = "max-heap-size=2g"
 
     def start(self):
         self.code_store.create()
@@ -217,7 +216,6 @@ class ExecutionEngine:
         limits = job.limits
         if limits is None:
             limits = ResourceLimits()
-            limits.update(self.limits_by_lang[job.language])
 
         executor, timelimit_factor = self.get_executor(job, limits)
         # raise CompilationError(e.args, e)
