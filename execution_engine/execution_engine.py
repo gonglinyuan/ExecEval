@@ -320,6 +320,7 @@ class ExecutionEngine:
                             or "bad_alloc" in errs.lower()
                             or "bad alloc" in errs.lower()
                             or "memoryerror" in errs.lower()
+                            or "Insufficient memory" in errs.lower()
                         ):
                             exec_outcome = ExecOutcome.MEMORY_LIMIT_EXCEEDED
                         if child_process.returncode > 0:
