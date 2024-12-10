@@ -25,7 +25,7 @@ app.logger.setLevel(gunicorn_logger.level)
 execution_engine: ExecutionEngine | None = None
 
 
-def init_engine(worker_id: int):
+def _init_engine(worker_id: int):
     global execution_engine
     config_path = Path("config.yaml")
     cfg = load_config(config_path)
@@ -34,6 +34,9 @@ def init_engine(worker_id: int):
     execution_engine = ExecutionEngine(cfg, (gid, uid), app.logger)
     app.config["execution_engine"] = execution_engine
     execution_engine.start()
+
+
+app.init_engine = _init_engine
 
 
 @app.route("/api/execute_code", methods=["POST"])
