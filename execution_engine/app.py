@@ -5,49 +5,35 @@ import time
 import traceback
 from pathlib import Path
 
-from config import load_config
-from exec_outcome import ExecOutcome
 from flask import Flask, request
 from flask_cors import CORS
+
+from config import load_config
+from exec_outcome import ExecOutcome
+from execution_engine import ExecutionEngine
 from job import JobData
 
 sys.path.extend([str(Path(__file__).parent)])
 
-from execution_engine import ExecutionEngine
-
 app = Flask(__name__)
 CORS(app)
-config_path = Path("config.yaml")
-cfg = load_config(config_path)
 
 gunicorn_logger = logging.getLogger("gunicorn.error")
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
 
-worker_cfg_db = os.environ["WORKER_CFG_DB"]
+execution_engine: ExecutionEngine | None = None
 
-cfg_db_lines = []
-run_ids = None
-with open(worker_cfg_db) as db_rp:
-    assigned = False
-    for line in db_rp:
-        pid, idx, gid, uid = map(int, line.strip().split(","))
-        if not assigned and pid == -1:
-            pid = os.getpid()
-            assigned = True
-            cfg_db_lines.append(",".join(map(str, (pid, idx, gid, uid))))
-            run_ids = (gid, uid)
-            app.logger.info(f"Assigned {gid=}, {uid=} to {pid=}")
-        else:
-            cfg_db_lines.append(line.strip())
 
-with open(worker_cfg_db, "w") as db_wp:
-    for line in cfg_db_lines:
-        db_wp.write(line + "\n")
-
-execution_engine = ExecutionEngine(cfg, run_ids, app.logger)
-app.config["execution_engine"] = execution_engine
-execution_engine.start()
+def init_engine(worker_id: int):
+    global execution_engine
+    config_path = Path("config.yaml")
+    cfg = load_config(config_path)
+    gid = int(os.environ["RUN_GID"]) + worker_id
+    uid = int(os.environ["RUN_UID"]) + worker_id
+    execution_engine = ExecutionEngine(cfg, (gid, uid), app.logger)
+    app.config["execution_engine"] = execution_engine
+    execution_engine.start()
 
 
 @app.route("/api/execute_code", methods=["POST"])
