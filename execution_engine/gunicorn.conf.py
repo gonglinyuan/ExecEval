@@ -1,6 +1,10 @@
 import logging
+import multiprocessing as mp
+import os
 
 gunicorn_logger = logging.getLogger("gunicorn.error")
+
+id_queue: mp.Queue | None = None
 
 
 def worker_abort(worker):
@@ -22,7 +26,10 @@ def when_ready(server):
 
 
 def on_starting(server):
-    pass
+    global id_queue
+    id_queue = mp.Manager().Queue()
+    for i in range(int(os.environ["NUM_WORKERS"])):
+        id_queue.put(i)
 
 
 def pre_fork(server, worker):
@@ -34,5 +41,6 @@ def post_fork(server, worker):
 
 
 def post_worker_init(worker):
+    global id_queue
     app = worker.app.wsgi()
-    app.init_engine(worker.id)
+    app.init_engine(id_queue.get())
