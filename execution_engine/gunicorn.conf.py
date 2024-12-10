@@ -1,10 +1,11 @@
 import logging
 import multiprocessing as mp
 import os
+from queue import Queue
 
 gunicorn_logger = logging.getLogger("gunicorn.error")
 
-id_queue: mp.Queue | None = None
+id_queue: Queue[int] | None = None
 
 
 def worker_abort(worker):
