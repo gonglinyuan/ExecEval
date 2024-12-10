@@ -59,17 +59,17 @@ def run_job():
         result = execution_engine.check_output_match(job)
         ret = {"data": [r.json() for r in result]}
         exec_outcomes = [
-            r.exec_outcome
-            for r in result
-            if not (r.exec_outcome is None or r.exec_outcome is ExecOutcome.PASSED)
-        ] + [ExecOutcome.PASSED]
+                            r.exec_outcome
+                            for r in result
+                            if not (r.exec_outcome is None or r.exec_outcome is ExecOutcome.PASSED)
+                        ] + [ExecOutcome.PASSED]
         peak_mem = max([int(r.peak_memory_consumed.split()[0]) for r in result if r.peak_memory_consumed] + [-1])
         peak_time = max([r.time_consumed for r in result if r.time_consumed] + [-1])
-        log = f"{log} time: {(time.perf_counter_ns()-st)/(1000_000_000)}s, |uts|={len(job.unittests)}, exec_outcome={exec_outcomes[0].value}, peak_mem={peak_mem}kB, peak_time={peak_time}s"
+        log = f"{log} time: {(time.perf_counter_ns() - st) / (1000_000_000)}s, |uts|={len(job.unittests)}, exec_outcome={exec_outcomes[0].value}, peak_mem={peak_mem}kB, peak_time={peak_time}s"
 
     except Exception as e:
         ret = {"error": str(e) + f"\n{traceback.print_exc()}"}, 400
-        log = f"{log} time: {(time.perf_counter_ns()-st)/(1000_000_000)}s, {ret}"
+        log = f"{log} time: {(time.perf_counter_ns() - st) / (1000_000_000)}s, {ret}"
     app.logger.info(log)
     return ret
 
@@ -81,7 +81,7 @@ def all_runtimes():
     for runtime in execution_engine.supported_languages.values():
         runtimes.append(runtime.get_info())
     ret = runtimes, 200
-    log = f"api/all_runtimes: {log} time: {(time.perf_counter_ns()-st)/(1000_000_000)}s"
+    log = f"api/all_runtimes: {log} time: {(time.perf_counter_ns() - st) / (1000_000_000)}s"
 
     app.logger.info(log)
     return ret
