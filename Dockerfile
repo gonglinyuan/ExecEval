@@ -84,6 +84,7 @@ RUN update-alternatives --install /usr/bin/java java "$JAVA_HOME"/bin/java 100 &
 
 RUN apt-get install -y python3-pip gperf
 RUN pip install flask gunicorn flask-cors gmpy2 Cython jsonlines fire 
+RUN pip install filelock
 
 RUN curl -o libseccomp.tar.gz -L https://github.com/seccomp/libseccomp/releases/download/v2.5.4/libseccomp-2.5.4.tar.gz
 RUN tar -xzvf libseccomp.tar.gz && cd libseccomp-2.5.4 && chmod +x configure
@@ -98,6 +99,7 @@ ENV RUN_UID 1586
 ENV RUN_GID 1586
 ENV NUM_WORKERS 16
 ENV GUNICORN_PORT 5000
+ENV WORKER_CFG_DB /root/worker_cfg_db.json
 ENV LOG_LEVEL info
 
 EXPOSE ${GUNICORN_PORT}

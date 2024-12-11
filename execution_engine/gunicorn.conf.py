@@ -1,7 +1,9 @@
+import json
 import logging
-import multiprocessing as mp
 import os
 from queue import Queue
+
+from filelock import FileLock
 
 gunicorn_logger = logging.getLogger("gunicorn.error")
 
@@ -27,10 +29,8 @@ def when_ready(server):
 
 
 def on_starting(server):
-    global id_queue
-    id_queue = mp.Manager().Queue()
-    for i in range(int(os.environ["NUM_WORKERS"])):
-        id_queue.put(i)
+    with open(os.environ["WORKER_CFG_DB"], "w") as f:
+        json.dump(list(range(int(os.environ["NUM_WORKERS"]))), f)
 
 
 def pre_fork(server, worker):
@@ -42,6 +42,12 @@ def post_fork(server, worker):
 
 
 def post_worker_init(worker):
-    global id_queue
+    with FileLock(os.environ["WORKER_CFG_DB"] + ".lock"):
+        with open(os.environ["WORKER_CFG_DB"], "r") as f:
+            remaining_ids = json.load(f)
+        worker_id = remaining_ids.pop(0)
+        with open(os.environ["WORKER_CFG_DB"], "w") as f:
+            json.dump(remaining_ids, f)
+
     app = worker.app.wsgi()
-    app.init_engine(id_queue.get())
+    app.init_engine(worker_id)
